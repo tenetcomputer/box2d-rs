@@ -60,7 +60,7 @@ impl<D: UserDataType> Tiles<D> {
 		let m_world = self.base.borrow().m_world.clone();
 
 		self.m_fixture_count = 0;
-		let timer = B2timer::default();
+		// let timer = B2timer::default();
 
 		{
 			let a: f32 = 0.5;
@@ -147,7 +147,7 @@ impl<D: UserDataType> Tiles<D> {
 			}
 		}
 
-		self.m_create_time = timer.get_milliseconds();
+		// self.m_create_time = timer.get_milliseconds();
 	}
 }
 

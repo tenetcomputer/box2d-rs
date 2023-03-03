@@ -128,7 +128,7 @@ However, we can compute sin+cos of the same angle fast.
 
 pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Profile, step: &B2timeStep, gravity: B2vec2, allow_sleep: bool)
 {
-	let mut timer = B2timer::default();
+	// let mut timer = B2timer::default();
 
 	let h: f32 = step.dt;
 
@@ -169,7 +169,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Pr
 		self_.m_velocities[i].w = w;
 	}
 
-	timer.reset();
+	// timer.reset();
 
 	// Solver data
 	let mut solver_data = B2solverData{
@@ -194,16 +194,16 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Pr
 	{
 		contact_solver.warm_start(&mut self_.m_velocities);
 	}
-	
+
 	for j in &self_.m_joints
 	{
 		j.borrow_mut().init_velocity_constraints(&mut solver_data, &mut self_.m_positions, &mut self_.m_velocities);
 	}
 
-	profile.solve_init = timer.get_milliseconds();
+	// profile.solve_init = timer.get_milliseconds();
 
 	// solve velocity constraints
-	timer.reset();
+	// timer.reset();
 	for _i in 0..step.velocity_iterations
 	{
 		for joint in &self_.m_joints
@@ -216,7 +216,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Pr
 
 	// Store impulses for warm starting
 	contact_solver.store_impulses(&self_.m_contacts);
-	profile.solve_velocity = timer.get_milliseconds();
+	// profile.solve_velocity = timer.get_milliseconds();
 
 	// Integrate positions
 	for i in 0..self_.m_bodies.len()
@@ -252,7 +252,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Pr
 	}
 
 	// solve position constraints
-	timer.reset();
+	// timer.reset();
 	let mut position_solved:bool = false;
 	for _i in 0..step.position_iterations
 	{
@@ -284,7 +284,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2island<D>, profile: &mut B2Pr
 		body.synchronize_transform();
 	}
 
-	profile.solve_position = timer.get_milliseconds();
+	// profile.solve_position = timer.get_milliseconds();
 
 	self_.report(&contact_solver.m_velocity_constraints);
 
@@ -472,7 +472,7 @@ pub(crate) fn report<D: UserDataType>(self_: &B2island<D>, constraints: &[B2cont
 	{
 		let mut c = c.borrow_mut();
 		let vc = &constraints[i];
-		
+
 		let mut impulse = B2contactImpulse::default();
 		impulse.count = vc.point_count;
 

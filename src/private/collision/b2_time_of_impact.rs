@@ -232,7 +232,7 @@ impl<'a> B2separationFunction<'a> {
 // CCD via the local separating axis method. This seeks progression
 // by computing the largest time at which separation is maintained.
 pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
-	let timer = B2timer::default();
+	// let timer = B2timer::default();
 
 	unsafe {
 	B2_TOI_CALLS += 1;
@@ -466,10 +466,10 @@ pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 	}
 
 
-	let time = timer.precise_time_ns();
+	// let time = timer.precise_time_ns();
 
-	unsafe {
-	B2_TOI_MAX_TIME = cmp::max(B2_TOI_MAX_TIME, time);
-	B2_TOI_TIME += time;
-	}
+	// unsafe {
+	// B2_TOI_MAX_TIME = cmp::max(B2_TOI_MAX_TIME, time);
+	// B2_TOI_TIME += time;
+	// }
 }

@@ -104,7 +104,7 @@ pub(crate) fn destroy_body<D: UserDataType>(self_: &mut B2world<D>, b: BodyPtr<D
 		panic!();
 	}
 
-	// Delete the attached joints.	
+	// Delete the attached joints.
 	let m_joint_list = b.borrow().m_joint_list.clone();
 	for je in m_joint_list.iter() {
 		let joint = upgrade(&je.borrow().joint);
@@ -507,7 +507,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2world<D>, step: B2timeStep) {
 	}
 
 	{
-		let timer = B2timer::default();
+		// let timer = B2timer::default();
 		// synchronize fixtures, check for out of range bodies.
 		for b in self_.m_body_list.iter() {
 			let mut b = b.borrow_mut();
@@ -526,7 +526,7 @@ pub(crate) fn solve<D: UserDataType>(self_: &mut B2world<D>, step: B2timeStep) {
 
 		// Look for new contacts.
 		self_.m_contact_manager.borrow_mut().find_new_contacts();
-		self_.m_profile.broadphase = timer.get_milliseconds();
+		// self_.m_profile.broadphase = timer.get_milliseconds();
 	}
 }
 
@@ -906,7 +906,7 @@ pub(crate) fn step<D: UserDataType>(
 	velocity_iterations: i32,
 	position_iterations: i32,
 ) {
-	let step_timer = B2timer::default();
+	// let step_timer = B2timer::default();
 
 	// If new fixtures were added, we need to find the new contacts.
 	if self_.m_new_contacts {
@@ -926,23 +926,23 @@ pub(crate) fn step<D: UserDataType>(
 	};
 	// update contacts. This is where some contacts are destroyed.
 	{
-		let timer = B2timer::default();
+		// let timer = B2timer::default();
 		B2contactManager::collide(self_.m_contact_manager.clone());
-		self_.m_profile.collide = timer.get_milliseconds();
+		// self_.m_profile.collide = timer.get_milliseconds();
 	}
 
 	// Integrate velocities, solve velocity constraints, and integrate positions.
 	if self_.m_step_complete && step.dt > 0.0 {
-		let timer = B2timer::default();
+		// let timer = B2timer::default();
 		self_.solve(step);
-		self_.m_profile.solve = timer.get_milliseconds();
+		// self_.m_profile.solve = timer.get_milliseconds();
 	}
 
 	// Handle TOI events.
 	if self_.m_continuous_physics && step.dt > 0.0 {
-		let timer = B2timer::default();
+		// let timer = B2timer::default();
 		self_.solve_toi(step);
-		self_.m_profile.solve_toi = timer.get_milliseconds();
+		// self_.m_profile.solve_toi = timer.get_milliseconds();
 	}
 
 	if step.dt > 0.0 {
@@ -955,7 +955,7 @@ pub(crate) fn step<D: UserDataType>(
 
 	self_.m_locked = false;
 
-	self_.m_profile.step = step_timer.get_milliseconds();
+	// self_.m_profile.step = step_timer.get_milliseconds();
 }
 
 pub(crate) fn clear_forces<D: UserDataType>(self_: &mut B2world<D>) {
@@ -1099,7 +1099,7 @@ pub(crate) fn draw_shape<D: UserDataType>(
 				v1 = v2;
 			}
 		}
-		ShapeAsDerived::AsPolygon(poly) => 
+		ShapeAsDerived::AsPolygon(poly) =>
 		{
 			let vertex_count = poly.m_count;
 			b2_assert(vertex_count <= B2_MAX_POLYGON_VERTICES);
@@ -1135,7 +1135,7 @@ pub(crate) fn debug_draw<D: UserDataType>(self_: &B2world<D>) {
 			let b = b.borrow();
 			let xf:B2Transform = b.get_transform();
 			for f in b.get_fixture_list().iter()
-			{				
+			{
 				if b.get_type() == B2bodyType::B2DynamicBody && b.m_mass == 0.0
 				{
 					// Bad body

@@ -291,7 +291,7 @@ impl<D: UserDataType> Car<D> {
 				m_wheel1.borrow().get_position(),
 				axis,
 			);
-			jd.motor_speed = 0.0;
+			jd.motor_speed = -50.0;
 			jd.max_motor_torque = 20.0;
 			jd.enable_motor = true;
 			jd.stiffness = mass1 * omega * omega;
@@ -312,7 +312,7 @@ impl<D: UserDataType> Car<D> {
 				m_wheel2.borrow().get_position(),
 				axis,
 			);
-			jd.motor_speed = 0.0;
+			jd.motor_speed = -50.0;
 			jd.max_motor_torque = 10.0;
 			jd.enable_motor = false;
 			jd.stiffness = mass2 * omega * omega;

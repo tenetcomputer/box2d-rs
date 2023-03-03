@@ -11,7 +11,7 @@ use glium::{Display, Surface};
 use imgui::{Context, FontConfig, FontGlyphRanges, FontSource, TreeNode, Slider, TabBar, TabItem};
 use imgui_glium_renderer::Renderer;
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
-use std::time::Instant;
+// use std::time::Instant;
 
 use itertools::Itertools;
 use std::cell::RefCell;
@@ -120,7 +120,7 @@ impl System {
             mut s_settings,
             ..
         } = self;
-        let mut last_frame = Instant::now();
+        // let mut last_frame = Instant::now();
 
         let mut g_camera = Camera::default();
         let g_debug_draw = Rc::new(RefCell::new(TestBedDebugDraw::new()));
@@ -152,11 +152,11 @@ impl System {
         event_loop.run(move |event, _, control_flow| {
             match &event {
                 Event::NewEvents(_) => {
-                    let now = Instant::now();
-                    imgui
-                        .io_mut()
-                        .update_delta_time(now.duration_since(last_frame));
-                    last_frame = now;
+                    // let now = Instant::now();
+                    // imgui
+                    //     .io_mut()
+                    //     .update_delta_time(now.duration_since(last_frame));
+                    // last_frame = now;
                 },
                 Event::MainEventsCleared => {
                     let gl_window = display.gl_window();
@@ -174,8 +174,8 @@ impl System {
                         target.clear_color_srgb(0.2, 0.2, 0.2, 1.0);
                         platform.prepare_render(&ui, gl_window.window());
 
-                        if g_debug_draw.borrow().m_show_ui                        
-                        {        
+                        if g_debug_draw.borrow().m_show_ui
+                        {
                             s_test.borrow().get_base().borrow_mut().draw_title(
                                 &ui,
                                 &format!(
@@ -183,7 +183,7 @@ impl System {
                                     g_test_entries[s_settings.m_test_index as usize].category,
                                     g_test_entries[s_settings.m_test_index as usize].name
                                 ),
-                            );                            
+                            );
                         }
 
                         s_test.borrow_mut().step(
@@ -245,7 +245,7 @@ impl System {
                         device_id: _,
                         is_synthetic: _,
                     } => {
-                        if input.state == ElementState::Pressed 
+                        if input.state == ElementState::Pressed
                         {
                             match input.virtual_keycode {
                                 Some(VirtualKeyCode::Escape) => {
@@ -329,8 +329,8 @@ impl System {
                                 Some(VirtualKeyCode::P) => {
                                     s_settings.m_pause = !s_settings.m_pause;
                                 },
-                                Some(VirtualKeyCode::LBracket) => {    
-                                    // Switch to previous test                                
+                                Some(VirtualKeyCode::LBracket) => {
+                                    // Switch to previous test
                                     if s_settings.m_test_index==0 {
                                         s_settings.m_test_index = g_test_entries.len()-1;
                                     }else{
@@ -359,9 +359,9 @@ impl System {
                                     d.m_show_ui = !d.m_show_ui;
                                 },
                                 _ => {},
-                            }    
-                        }      
-                        s_test.borrow_mut().keyboard(input);              
+                            }
+                        }
+                        s_test.borrow_mut().keyboard(input);
                     }
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     _ => (),
@@ -394,7 +394,7 @@ impl System {
         s_test: TestPtr<D, F>,
         cursor_position: PhysicalPosition<f64>,
         g_camera: &mut Camera,
-         button: &MouseButton, 
+         button: &MouseButton,
         action: &ElementState,
          mods: &ModifiersState,
         s_right_mouse_down: &mut bool,
@@ -419,7 +419,7 @@ impl System {
                     s_test.borrow_mut().mouse_down(pw);
                 }
             }
-            
+
             if *action == ElementState::Released
             {
                 s_test.borrow_mut().mouse_up(pw);
@@ -428,7 +428,7 @@ impl System {
         else if *button == MouseButton::Right
         {
             if *action == ElementState::Pressed
-            {	
+            {
                 *s_click_point_ws = g_camera.convert_screen_to_world(ps);
                 *s_right_mouse_down = true;
             }
@@ -440,7 +440,7 @@ impl System {
         }
     }
 
-    fn mouse_motion_callback<'a, D: UserDataType, F: Facade>(s_test: TestPtr<D, F>, 
+    fn mouse_motion_callback<'a, D: UserDataType, F: Facade>(s_test: TestPtr<D, F>,
         g_camera: &mut Camera, position: &PhysicalPosition<f64>,
          s_right_mouse_down: &mut bool,
          s_click_point_ws: &mut B2vec2)
@@ -449,7 +449,7 @@ impl System {
 
         let pw: B2vec2 = g_camera.convert_screen_to_world(ps);
         s_test.borrow_mut().mouse_move(pw);
-        
+
         if *s_right_mouse_down
         {
             let diff: B2vec2 = pw - *s_click_point_ws;
@@ -501,7 +501,7 @@ impl System {
                             Slider::new("Vel Iters", 0, 50)
                                 .display_format("%.0f")
                                 .build(ui, &mut s_settings.m_velocity_iterations);
-  
+
                             Slider::new("Pos Iter", 0, 50)
                                 .display_format("%.0f")
                                 .build(ui, &mut s_settings.m_position_iterations);
@@ -516,7 +516,7 @@ impl System {
                             ui.checkbox("Warm Starting", &mut s_settings.m_enable_warm_starting);
                             ui.checkbox("Time of Impact", &mut s_settings.m_enable_continuous);
                             ui.checkbox("Sub-Stepping", &mut s_settings.m_enable_sub_stepping);
-     
+
                             ui.separator();
 
                             ui.checkbox("Shapes", &mut s_settings.m_draw_shapes);

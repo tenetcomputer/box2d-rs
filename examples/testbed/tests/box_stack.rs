@@ -19,7 +19,7 @@ use std::rc::Rc;
 
 use glium::glutin::event::{ElementState, KeyboardInput, VirtualKeyCode};
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 pub(crate) struct BoxStack<D: UserDataType> {
 	base: TestBasePtr<D>,
@@ -48,7 +48,7 @@ impl<D: UserDataType> BoxStack<D> {
 		}));
 
 		{
-			let mut self_ = result_ptr.borrow_mut();			
+			let mut self_ = result_ptr.borrow_mut();
 			{
 				let world = base.borrow().m_world.clone();
 				let mut world = world.borrow_mut();
@@ -151,9 +151,11 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for BoxStack<D> {
 							.set_linear_velocity(B2vec2::new(400.0, 0.0));
 					}
 				}
-				Some(VirtualKeyCode::B) => {					
-					let g_block_solve: bool = G_BLOCK_SOLVE.load(Ordering::SeqCst);
-					G_BLOCK_SOLVE.store(!g_block_solve, Ordering::SeqCst);
+				Some(VirtualKeyCode::B) => {
+					unsafe {
+					let g_block_solve_lower: bool = G_BLOCK_SOLVE;
+					G_BLOCK_SOLVE = !g_block_solve_lower;
+					}
 				}
 				_ => (),
 			}
@@ -168,7 +170,10 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for BoxStack<D> {
 		camera: &mut Camera,
 	) {
 		Test::step(self.base.clone(), ui, display, target, settings, *camera);
-		let g_block_solve: bool = G_BLOCK_SOLVE.load(Ordering::SeqCst);
+		let mut g_block_solve_lower: bool = false;
+		unsafe {
+			g_block_solve_lower = G_BLOCK_SOLVE;
+		}
 
 		let mut base = self.base.borrow_mut();
 
@@ -181,7 +186,7 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for BoxStack<D> {
 			base.g_debug_draw.borrow().draw_string(
 				ui,
 				B2vec2::new(5.0, base.m_text_line as f32),
-				&format!("Blocksolve = {0}", g_block_solve),
+				&format!("Blocksolve = {0}", g_block_solve_lower),
 			);
 			base.m_text_line += base.m_text_increment;
 

@@ -1,3 +1,4 @@
+use std::cmp;
 
 use crate::b2_distance::*;
 use crate::b2_math::*;
@@ -6,7 +7,7 @@ use crate::b2_shape::*;
 
 use crate::shapes::b2rs_to_derived_shape::*;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 // GJK using Voronoi regions (Christer Ericson) and Barycentric coordinates.
 
@@ -406,7 +407,9 @@ pub fn b2_distance_fn(
 	cache: &mut B2simplexCache,
 	input: &B2distanceInput,
 ) {
-	B2_GJK_CALLS.fetch_add(1, Ordering::SeqCst);
+	unsafe {
+		B2_GJK_CALLS += 1;
+	}
 
 	let proxy_a: &B2distanceProxy = &input.proxy_a;
 	let proxy_b: &B2distanceProxy = &input.proxy_b;
@@ -480,7 +483,9 @@ pub fn b2_distance_fn(
 
 		// Iteration count is equated to the number of support point calls.
 		iter += 1;
-		B2_GJK_ITERS.fetch_add(1, Ordering::SeqCst);
+		unsafe {
+		B2_GJK_ITERS += 1;
+		}
 
 		// Check for duplicate support points. This is the main termination criteria.
 		let mut duplicate: bool = false;
@@ -499,8 +504,9 @@ pub fn b2_distance_fn(
 		// New vertex is ok and needed.
 		simplex.m_count += 1;
 	}
-	
-		B2_GJK_MAX_ITERS.fetch_max(iter, Ordering::SeqCst);
+	unsafe {
+		B2_GJK_MAX_ITERS = cmp::max(B2_GJK_MAX_ITERS, iter);
+	}
 
 	// Prepare output.
 	simplex.get_witness_points(&mut output.point_a, &mut output.point_b);

@@ -18,11 +18,11 @@ use crate::private::dynamics::b2_contact as private;
 
 use bitflags::bitflags;
 
-use std::sync::atomic::{AtomicBool};
+// use std::sync::atomic::{AtomicBool};
 
 //box2d-rs: from \src\private\dynamics\b2_contact_solver_private.rs
 //not sure should it be public and atomic as it used only in box_stack example
-pub static G_BLOCK_SOLVE: AtomicBool = AtomicBool::new(true);
+pub static mut G_BLOCK_SOLVE: bool = true;
 
 /// Friction mixing law. The idea is to allow either fixture to drive the friction to zero.
 /// For example, anything slides on ice.
@@ -63,7 +63,7 @@ impl<D:UserDataType> LinkedListNode<B2contactEdge<D>> for B2contactEdge<D>
 }
 
 impl<D:UserDataType> DoubleLinkedListNode<B2contactEdge<D>> for B2contactEdge<D>
-{ 	
+{
 	fn get_prev(&self) -> Option<ContactEdgeWeakPtr<D>>
 	{
 		return self.prev.clone();
@@ -102,7 +102,7 @@ pub trait B2contactDynTrait<D: UserDataType> {
 }
 
 impl<D:UserDataType> LinkedListNode<dyn B2contactDynTrait<D>> for dyn B2contactDynTrait<D>
-{ 	
+{
 	fn get_next(&self) -> Option<Rc<RefCell<dyn B2contactDynTrait<D>>>>
 	{
 		return self.get_base().m_next.clone();
@@ -117,7 +117,7 @@ impl<D:UserDataType> LinkedListNode<dyn B2contactDynTrait<D>> for dyn B2contactD
 }
 
 impl<D:UserDataType> DoubleLinkedListNode<dyn B2contactDynTrait<D>> for dyn B2contactDynTrait<D>
-{ 	
+{
 	fn get_prev(&self) -> Option<Weak<RefCell<dyn B2contactDynTrait<D>>>>
 	{
 		return self.get_base().m_prev.clone();

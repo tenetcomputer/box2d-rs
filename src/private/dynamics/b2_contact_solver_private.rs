@@ -6,7 +6,7 @@ use crate::b2rs_common::*;
 use crate::b2_time_step::*;
 use crate::b2_collision::*;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 // Solver debugging is normally disabled because the block solver sometimes has to deal with a poorly conditioned effective mass matrix.
 const B2_DEBUG_SOLVER: bool = false;
@@ -22,7 +22,7 @@ pub(crate) fn new<D: UserDataType>(def: &B2contactSolverDef, contacts: &Vec<Cont
 	let mut result = B2contactSolver::default();
 
 	let count = contacts.len();
-	
+
 	result.m_position_constraints.resize(count,Default::default());
 	result.m_velocity_constraints.resize(count,Default::default());
 	result.m_step = def.step;
@@ -84,7 +84,7 @@ pub(crate) fn new<D: UserDataType>(def: &B2contactSolverDef, contacts: &Vec<Cont
 		{
 			let cp = manifold.points[j];
 			let mut vcp = &mut vc.points[j];
-	
+
 			if result.m_step.warm_starting
 			{
 				vcp.normal_impulse = result.m_step.dt_ratio * cp.normal_impulse;
@@ -191,8 +191,11 @@ pub(crate) fn initialize_velocity_constraints<D: UserDataType>(self_: &mut B2con
 		}
 
 		// If we have two points, then prepare the block solver.
-		let g_block_solve: bool = G_BLOCK_SOLVE.load(Ordering::SeqCst);
-		if vc.point_count == 2 && g_block_solve
+		let mut g_block_solve_lower: bool = false;
+		unsafe {
+			g_block_solve_lower = G_BLOCK_SOLVE;
+		}
+		if vc.point_count == 2 && g_block_solve_lower
 		{
 			let vcp1: &B2velocityConstraintPoint = &vc.points[0];
 			let vcp2: &B2velocityConstraintPoint = &vc.points[1];
@@ -308,7 +311,7 @@ pub(crate) fn solve_velocity_constraints(self_: &mut B2contactSolver, m_velociti
 			let new_impulse: f32 =b2_clamp(vcp.tangent_impulse + lambda, -max_friction, max_friction);
 			lambda = new_impulse - vcp.tangent_impulse;
 			vcp.tangent_impulse = new_impulse;
-			
+
 			// Apply contact impulse
 			let p: B2vec2 =lambda * tangent;
 
@@ -320,8 +323,11 @@ pub(crate) fn solve_velocity_constraints(self_: &mut B2contactSolver, m_velociti
 		}
 
 		// solve normal constraints
-		let g_block_solve: bool = G_BLOCK_SOLVE.load(Ordering::SeqCst);
-		if point_count == 1 || g_block_solve == false
+		let mut g_block_solve_lower: bool = false;
+		unsafe {
+			g_block_solve_lower = G_BLOCK_SOLVE;
+		}
+		if point_count == 1 || g_block_solve_lower == false
 		{
 			for j in 0..point_count
 			{
@@ -362,17 +368,17 @@ pub(crate) fn solve_velocity_constraints(self_: &mut B2contactSolver, m_velociti
 			// implies that we must have in any solution either vn_i = 0 or x_i = 0. So for the 2D contact problem the cases
 			// vn1 = 0 and vn2 = 0, x1 = 0 and x2 = 0, x1 = 0 and vn2 = 0, x2 = 0 and vn1 = 0 need to be tested. The first valid
 			// solution that satisfies the problem is chosen.
-			// 
+			//
 			// In order to account of the accumulated impulse 'a' (because of the iterative nature of the solver which only requires
 			// that the accumulated impulse is clamped and not the incremental impulse) we change the impulse variable (x_i).
 			//
 			// Substitute:
-			// 
+			//
 			// x = a + d
-			// 
+			//
 			// a := old total impulse
 			// x := new total impulse
-			// d := incremental impulse 
+			// d := incremental impulse
 			//
 			// For the current iteration we extend the formula for the incremental impulse
 			// to compute the new total impulse:
@@ -458,7 +464,7 @@ pub(crate) fn solve_velocity_constraints(self_: &mut B2contactSolver, m_velociti
 				//
 				// Case 2: vn1 = 0 and x2 = 0
 				//
-				//   0 = a11 * x1 + a12 * 0 + b1' 
+				//   0 = a11 * x1 + a12 * 0 + b1'
 				// vn2 = a21 * x1 + a22 * 0 + b2'
 				//
 				x.x = - cp1.normal_mass * b.x;
@@ -500,7 +506,7 @@ if B2_DEBUG_SOLVER
 				//
 				// Case 3: vn2 = 0 and x1 = 0
 				//
-				// vn1 = a11 * 0 + a12 * x2 + b1' 
+				// vn1 = a11 * 0 + a12 * x2 + b1'
 				//   0 = a21 * 0 + a22 * x2 + b2'
 				//
 				x.x = 0.0;
@@ -541,7 +547,7 @@ if B2_DEBUG_SOLVER
 
 				//
 				// Case 4: x1 = 0 and x2 = 0
-				// 
+				//
 				// vn1 = b1
 				// vn2 = b2;
 				x.x = 0.0;
@@ -549,7 +555,7 @@ if B2_DEBUG_SOLVER
 				vn1 = b.x;
 				vn2 = b.y;
 
-				if vn1 >= 0.0 && vn2 >= 0.0 
+				if vn1 >= 0.0 && vn2 >= 0.0
 				{
 					// Resubstitute for the incremental impulse
 					let d: B2vec2 =x - a;
@@ -730,7 +736,7 @@ pub(crate) fn  solve_position_constraints(self_: &mut B2contactSolver, m_positio
 }
 
 // Sequential position solver for position constraints.
-pub(crate) fn solve_toiposition_constraints(self_: &mut B2contactSolver, toi_index_a: i32, toi_index_b: i32, 
+pub(crate) fn solve_toiposition_constraints(self_: &mut B2contactSolver, toi_index_a: i32, toi_index_b: i32,
 	m_positions: &mut [B2position]) -> bool
 {
 	let mut min_separation: f32 =0.0;

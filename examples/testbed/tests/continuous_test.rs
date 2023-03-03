@@ -17,7 +17,7 @@ use glium::backend::Facade;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 pub(crate) struct ContinuousTest<D: UserDataType> {
 	base: TestBasePtr<D>,
@@ -114,15 +114,17 @@ impl<D: UserDataType> ContinuousTest<D> {
 				.set_linear_velocity(B2vec2::new(0.0, -100.0));
 		}
 
-		B2_GJK_CALLS.store(0, Ordering::SeqCst);
-		B2_GJK_ITERS.store(0, Ordering::SeqCst);
-		B2_GJK_MAX_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_CALLS.store(0, Ordering::SeqCst);
-		B2_TOI_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_ROOT_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_MAX_ROOT_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_TIME.store(0, Ordering::SeqCst);
-		B2_TOI_MAX_TIME.store(0, Ordering::SeqCst);
+		unsafe {
+		B2_GJK_CALLS= 0;
+		B2_GJK_ITERS= 0;
+		B2_GJK_MAX_ITERS= 0;
+		B2_TOI_CALLS= 0;
+		B2_TOI_ITERS= 0;
+		B2_TOI_ROOT_ITERS= 0;
+		B2_TOI_MAX_ROOT_ITERS= 0;
+		B2_TOI_TIME= 0;
+		B2_TOI_MAX_TIME= 0;
+		}
 	}
 
 	//fn launch() {
@@ -156,17 +158,17 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for ContinuousTest<D> {
 		camera: &mut Camera,
 	) {
 		Test::step(self.base.clone(), ui, display, target, settings, *camera);
+		unsafe {
+		let load_b2_gjk_calls = B2_GJK_CALLS;
+		let load_b2_gjk_iters = B2_GJK_ITERS;
+		let load_b2_gjk_max_iters = B2_GJK_MAX_ITERS;
 
-		let load_b2_gjk_calls = B2_GJK_CALLS.load(Ordering::SeqCst);
-		let load_b2_gjk_iters = B2_GJK_ITERS.load(Ordering::SeqCst);
-		let load_b2_gjk_max_iters = B2_GJK_MAX_ITERS.load(Ordering::SeqCst);
-
-		let load_b2_toi_time = B2_TOI_TIME.load(Ordering::SeqCst);
-		let load_b2_toi_max_time = B2_TOI_MAX_TIME.load(Ordering::SeqCst);
-		let load_b2_toi_calls = B2_TOI_CALLS.load(Ordering::SeqCst);
-		let load_b2_toi_iters = B2_TOI_ITERS.load(Ordering::SeqCst);
-		let load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS.load(Ordering::SeqCst);
-		let load_b2_toi_root_iters = B2_TOI_ROOT_ITERS.load(Ordering::SeqCst);
+		let load_b2_toi_time = B2_TOI_TIME;
+		let load_b2_toi_max_time = B2_TOI_MAX_TIME;
+		let load_b2_toi_calls = B2_TOI_CALLS;
+		let load_b2_toi_iters = B2_TOI_ITERS;
+		let load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS;
+		let load_b2_toi_root_iters = B2_TOI_ROOT_ITERS;
 
 		let mut base = self.base.borrow_mut();
 
@@ -222,5 +224,6 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for ContinuousTest<D> {
 		if base.m_step_count % 60 == 0 {
 			//launch();
 		}
+	}
 	}
 }

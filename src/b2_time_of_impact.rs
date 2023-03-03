@@ -2,18 +2,18 @@ use crate::b2_distance::B2distanceProxy;
 use crate::b2_math::B2Sweep;
 use crate::private::collision::b2_time_of_impact as private;
 
-use std::sync::atomic::{AtomicUsize,AtomicU64};
+// use std::sync::atomic::{AtomicUsize,AtomicU64};
 
 /// ns
-pub static B2_TOI_TIME: AtomicU64 = AtomicU64::new(0);
+pub static mut B2_TOI_TIME: u64 = 0;
 /// ns
-pub static B2_TOI_MAX_TIME: AtomicU64 = AtomicU64::new(0);
+pub static mut B2_TOI_MAX_TIME: u64 = 0;
 
-pub static B2_TOI_CALLS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_TOI_ITERS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_TOI_MAX_ITERS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_TOI_ROOT_ITERS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_TOI_MAX_ROOT_ITERS: AtomicUsize = AtomicUsize::new(0);
+pub static mut B2_TOI_CALLS: usize = 0;
+pub static mut B2_TOI_ITERS: usize = 0;
+pub static mut B2_TOI_MAX_ITERS: usize = 0;
+pub static mut B2_TOI_ROOT_ITERS: usize = 0;
+pub static mut B2_TOI_MAX_ROOT_ITERS: usize = 0;
 
 /// Input parameters for b2TimeOfImpact
 #[derive(Default, Clone, Debug)]

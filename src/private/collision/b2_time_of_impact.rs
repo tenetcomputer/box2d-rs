@@ -1,3 +1,5 @@
+use std::cmp;
+
 use crate::b2_distance::*;
 use crate::b2_math::*;
 use crate::b2_common::*;
@@ -5,7 +7,7 @@ use crate::b2_settings::*;
 use crate::b2_time_of_impact::*;
 use crate::b2_timer::*;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 enum B2separationFunctionType {
 	EPoints,
@@ -232,7 +234,9 @@ impl<'a> B2separationFunction<'a> {
 pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 	let timer = B2timer::default();
 
-	B2_TOI_CALLS.fetch_add(1, Ordering::SeqCst);
+	unsafe {
+	B2_TOI_CALLS += 1;
+	}
 
 	output.state = B2toioutputState::EUnknown;
 	output.t = input.t_max;
@@ -401,9 +405,11 @@ pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 				}
 
 				root_iter_count += 1;
-				
-				B2_TOI_ROOT_ITERS.fetch_add(1, Ordering::SeqCst);
-				
+
+				unsafe {
+				B2_TOI_ROOT_ITERS += 1;
+				}
+
 
 				let s: f32 = fcn.evaluate(index_a, index_b, t);
 
@@ -426,8 +432,9 @@ pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 					break;
 				}
 			}
-			
-			B2_TOI_MAX_ROOT_ITERS.fetch_max(root_iter_count as usize, Ordering::SeqCst);
+			unsafe {
+			B2_GJK_MAX_ITERS = cmp::max(B2_GJK_MAX_ITERS, root_iter_count as usize);
+			}
 
 			push_back_iter += 1;
 
@@ -438,7 +445,9 @@ pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 
 		iter += 1;
 
-		B2_TOI_ITERS.fetch_add(1, Ordering::SeqCst);
+		unsafe {
+		B2_TOI_ITERS += 1;
+		}
 
 		if done {
 			break;
@@ -452,12 +461,15 @@ pub fn b2_time_of_impact(output: &mut B2toioutput, input: &B2toiinput) {
 		}
 	}
 
-	B2_TOI_MAX_ITERS.fetch_max(iter as usize, Ordering::SeqCst);
-	
+	unsafe {
+	B2_TOI_MAX_ITERS = cmp::max(B2_TOI_MAX_ITERS, iter as usize);
+	}
+
 
 	let time = timer.precise_time_ns();
 
-	B2_TOI_MAX_TIME.fetch_max(time, Ordering::SeqCst);
-	B2_TOI_TIME.fetch_add(time, Ordering::SeqCst);
-	
+	unsafe {
+	B2_TOI_MAX_TIME = cmp::max(B2_TOI_MAX_TIME, time);
+	B2_TOI_TIME += time;
+	}
 }

@@ -3,11 +3,11 @@ use crate::b2_common::*;
 use crate::b2_shape::*;
 use crate::private::collision::b2_distance as private;
 
-use std::sync::atomic::AtomicUsize;
+// use std::sync::atomic::AtomicUsize;
 
-pub static B2_GJK_CALLS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_GJK_ITERS: AtomicUsize = AtomicUsize::new(0);
-pub static B2_GJK_MAX_ITERS: AtomicUsize = AtomicUsize::new(0);
+pub static mut B2_GJK_CALLS: usize = 0;
+pub static mut B2_GJK_ITERS: usize = 0;
+pub static mut B2_GJK_MAX_ITERS: usize = 0;
 
 /// A distance proxy is used by the GJK algorithm.
 /// It encapsulates any shape.
@@ -122,7 +122,7 @@ pub struct B2shapeCastOutput {
 }
 
 /// Perform a linear shape cast of shape b moving and shape A fixed. Determines the hit point, normal, and translation fraction.
-/// 
+///
 /// @returns true if hit, false if there is no hit or an initial overlap
 pub fn b2_shape_cast(output: &mut B2shapeCastOutput, input: B2shapeCastInput) -> bool {
     return private::b2_shape_cast(output, input);

@@ -13,7 +13,7 @@ use glium::backend::Facade;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 pub(crate) struct TimeOfImpact<D: UserDataType> {
 	base: TestBasePtr<D>,
@@ -111,8 +111,13 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for TimeOfImpact<D> {
 		);
 		base.m_text_line += base.m_text_increment;
 
-		let load_b2_toi_max_iters = B2_TOI_MAX_ITERS.load(Ordering::SeqCst);
-		let load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS.load(Ordering::SeqCst);
+		let mut load_b2_toi_max_iters = 0;
+		let mut load_b2_toi_max_root_iters = 0;
+
+		unsafe {
+			load_b2_toi_max_iters = B2_TOI_MAX_ITERS;
+			load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS;
+		}
 
 		base.g_debug_draw.borrow().draw_string(
 			ui,

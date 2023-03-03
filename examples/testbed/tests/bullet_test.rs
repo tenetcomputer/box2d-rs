@@ -16,7 +16,7 @@ use glium::backend::Facade;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use std::sync::atomic::Ordering;
+// use std::sync::atomic::Ordering;
 
 pub(crate) struct BulletTest<D: UserDataType> {
 	base: TestBasePtr<D>,
@@ -119,15 +119,17 @@ impl<D: UserDataType> BulletTest<D> {
 		m_bullet.set_linear_velocity(B2vec2::new(0.0, -50.0));
 		m_bullet.set_angular_velocity(0.0);
 
-		B2_GJK_CALLS.store(0, Ordering::SeqCst);
-		B2_GJK_ITERS.store(0, Ordering::SeqCst);
-		B2_GJK_MAX_ITERS.store(0, Ordering::SeqCst);
+		unsafe {
+		B2_GJK_CALLS= 0;
+		B2_GJK_ITERS= 0;
+		B2_GJK_MAX_ITERS= 0;
 
-		B2_TOI_CALLS.store(0, Ordering::SeqCst);
-		B2_TOI_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_MAX_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_ROOT_ITERS.store(0, Ordering::SeqCst);
-		B2_TOI_MAX_ROOT_ITERS.store(0, Ordering::SeqCst);
+		B2_TOI_CALLS= 0;
+		B2_TOI_ITERS= 0;
+		B2_TOI_MAX_ITERS= 0;
+		B2_TOI_ROOT_ITERS= 0;
+		B2_TOI_MAX_ROOT_ITERS= 0;
+		}
 	}
 }
 
@@ -146,13 +148,14 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for BulletTest<D> {
 		{
 			let mut base = self.base.borrow_mut();
 
-			let load_b2_gjk_calls = B2_GJK_CALLS.load(Ordering::SeqCst);
-			let load_b2_gjk_iters = B2_GJK_ITERS.load(Ordering::SeqCst);
-			let load_b2_gjk_max_iters = B2_GJK_MAX_ITERS.load(Ordering::SeqCst);
-			let load_b2_toi_calls = B2_TOI_CALLS.load(Ordering::SeqCst);
-			let load_b2_toi_iters = B2_TOI_ITERS.load(Ordering::SeqCst);
-			let load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS.load(Ordering::SeqCst);
-			let load_b2_toi_root_iters = B2_TOI_ROOT_ITERS.load(Ordering::SeqCst);
+			unsafe {
+			let load_b2_gjk_calls = B2_GJK_CALLS;
+			let load_b2_gjk_iters = B2_GJK_ITERS;
+			let load_b2_gjk_max_iters = B2_GJK_MAX_ITERS;
+			let load_b2_toi_calls = B2_TOI_CALLS;
+			let load_b2_toi_iters = B2_TOI_ITERS;
+			let load_b2_toi_max_root_iters = B2_TOI_MAX_ROOT_ITERS;
+			let load_b2_toi_root_iters = B2_TOI_ROOT_ITERS;
 
 			if load_b2_gjk_calls > 0 {
 				base.g_debug_draw.borrow().draw_string(
@@ -192,6 +195,7 @@ impl<D: UserDataType, F: Facade> TestDyn<D, F> for BulletTest<D> {
 				);
 				base.m_text_line += base.m_text_increment;
 			}
+		}
 		}
 
 		if self.base.borrow().m_step_count % 60 == 0 {
